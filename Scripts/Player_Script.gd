@@ -26,6 +26,7 @@ var rightWallCol : Array[Node2D]
 @export var leftWall_Area2D: Area2D
 @export var rightWall_Area2D: Area2D
 const velocityLimitX_Wall : float = 0.1		#Evita reentrar a wall cuando se salto en paredes
+const framesInOneSecond: float = 60
 #-------------------------------------------------------------------------------
 # Inputs
 var movementInput : Vector2 = Vector2.ZERO
@@ -72,7 +73,8 @@ func _ready() -> void:
 #-------------------------------------------------------------------------------
 func _physics_process(_delta:float) -> void:
 	movementInput = Vector2(Input.get_axis("ui_left", "ui_right"), Input.get_axis("ui_up", "ui_down"))
-	camera_2d.position = lerp(camera_2d.position, cameraMarker.global_position, 0.1)
+	var _f: float = 0.1 * framesInOneSecond * _delta
+	camera_2d.position = lerp(camera_2d.position, cameraMarker.global_position, _f)
 	leftWallCol = leftWall_Area2D.get_overlapping_bodies()
 	rightWallCol = rightWall_Area2D.get_overlapping_bodies()
 	#-------------------------------------------------------------------------------
@@ -82,7 +84,7 @@ func _physics_process(_delta:float) -> void:
 				COLLISION_STATE.GROUND:
 					match(myGROUND_STATE):
 						GROUND_STATE.STAND:
-							Horizontal_Input(ground_Speed, ground_Weight)
+							Horizontal_Input(_delta, ground_Speed, ground_Weight)
 							RotateSprite_To_GroundNormal()
 							move_and_slide()
 							#-------------------------------------------------------------------------------
@@ -102,10 +104,11 @@ func _physics_process(_delta:float) -> void:
 								PlayAnimation(animName_Run)
 								FlipSpriteRight()
 								return
+						#-------------------------------------------------------------------------------
 						GROUND_STATE.MOVE:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(ground_Speed, ground_Weight)
+									Horizontal_Input(_delta, ground_Speed, ground_Weight)
 									RotateSprite_To_GroundNormal()
 									move_and_slide()
 									#-------------------------------------------------------------------------------
@@ -119,8 +122,9 @@ func _physics_process(_delta:float) -> void:
 										myGROUND_STATE = GROUND_STATE.STAND
 										PlayAnimation(animName_Idle)
 										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(ground_Speed, ground_Weight)
+									Horizontal_Input(_delta, ground_Speed, ground_Weight)
 									RotateSprite_To_GroundNormal()
 									move_and_slide()
 									#-------------------------------------------------------------------------------
@@ -134,12 +138,16 @@ func _physics_process(_delta:float) -> void:
 										myGROUND_STATE = GROUND_STATE.STAND
 										PlayAnimation(animName_Idle)
 										return
+								#-------------------------------------------------------------------------------
+						#-------------------------------------------------------------------------------
+					#-------------------------------------------------------------------------------
+				#-------------------------------------------------------------------------------
 				COLLISION_STATE.AIR:
 					match(myJUMP_STATE):
 						JUMP_STATE.LIGHT_JUMP:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(lightJump_Speed, lightJump_Weight)
+									Horizontal_Input(_delta, lightJump_Speed, lightJump_Weight)
 									ApplyGravity(_delta, lightJump_GravityScale)
 									move_and_slide()
 									#-------------------------------------------------------------------------------
@@ -158,8 +166,10 @@ func _physics_process(_delta:float) -> void:
 										return
 									if(velocity.x > 0.0):
 										FlipSpriteRight()
+										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(lightJump_Speed, lightJump_Weight)
+									Horizontal_Input(_delta, lightJump_Speed, lightJump_Weight)
 									ApplyGravity(_delta, lightJump_GravityScale)
 									move_and_slide()
 									#-------------------------------------------------------------------------------
@@ -179,10 +189,13 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.x < 0.0):
 										FlipSpriteLeft()
 										return
+								#-------------------------------------------------------------------------------
+							#-------------------------------------------------------------------------------
+						#-------------------------------------------------------------------------------
 						JUMP_STATE.HEAVY_JUMP:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(heavyJump_Speed, heavyJump_Weight)
+									Horizontal_Input(_delta, heavyJump_Speed, heavyJump_Weight)
 									ApplyGravity(_delta, heavyJump_GravityScale)
 									move_and_slide()
 									#-------------------------------------------------------------------------------
@@ -201,8 +214,10 @@ func _physics_process(_delta:float) -> void:
 										return
 									if(velocity.x > 0.0):
 										FlipSpriteRight()
+										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(heavyJump_Speed, heavyJump_Weight)
+									Horizontal_Input(_delta, heavyJump_Speed, heavyJump_Weight)
 									ApplyGravity(_delta, heavyJump_GravityScale)
 									move_and_slide()
 									#-------------------------------------------------------------------------------
@@ -222,10 +237,13 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.x < 0.0):
 										FlipSpriteLeft()
 										return
+								#-------------------------------------------------------------------------------
+							#-------------------------------------------------------------------------------
+						#-------------------------------------------------------------------------------
 						JUMP_STATE.FALL:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(fall_Speed, fall_Weight)
+									Horizontal_Input(_delta, fall_Speed, fall_Weight)
 									ApplyGravity(_delta, fall_GravityScale)
 									move_and_slide()
 									#-------------------------------------------------------------------------------
@@ -247,8 +265,9 @@ func _physics_process(_delta:float) -> void:
 										velocity.y = terminalVelocity
 										myJUMP_STATE = JUMP_STATE.TERMINAL_VELOCITY
 										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(fall_Speed, fall_Weight)
+									Horizontal_Input(_delta, fall_Speed, fall_Weight)
 									ApplyGravity(_delta, fall_GravityScale)
 									move_and_slide()
 									#-------------------------------------------------------------------------------
@@ -273,10 +292,11 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.x < 0.0):
 										FlipSpriteLeft()
 										return
+								#-------------------------------------------------------------------------------
 						JUMP_STATE.TERMINAL_VELOCITY:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(terminalVelocity_Speed, terminalVelocity_Weight)
+									Horizontal_Input(_delta, terminalVelocity_Speed, terminalVelocity_Weight)
 									move_and_slide()
 									#-------------------------------------------------------------------------------
 									if(is_on_floor()):
@@ -298,8 +318,10 @@ func _physics_process(_delta:float) -> void:
 										return
 									if(velocity.x > 0.0):
 										FlipSpriteRight()
+										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(terminalVelocity_Speed, terminalVelocity_Weight)
+									Horizontal_Input(_delta, terminalVelocity_Speed, terminalVelocity_Weight)
 									move_and_slide()
 									#-------------------------------------------------------------------------------
 									if(is_on_floor()):
@@ -321,12 +343,17 @@ func _physics_process(_delta:float) -> void:
 										return
 									if(velocity.x < 0.0):
 										FlipSpriteLeft()
+								#-------------------------------------------------------------------------------
+							#-------------------------------------------------------------------------------
+						#-------------------------------------------------------------------------------
+					#-------------------------------------------------------------------------------
+				#-------------------------------------------------------------------------------
 				COLLISION_STATE.WALL:
 					match(myJUMP_STATE):
 						JUMP_STATE.LIGHT_JUMP:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(lightJump_Speed, lightJump_Weight)
+									Horizontal_Input(_delta, lightJump_Speed, lightJump_Weight)
 									ApplyGravity(_delta, lightJump_GravityScale)
 									move_and_slide()
 									if(Input.is_action_just_released(jump_Input)):
@@ -338,8 +365,9 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.y > 0.0):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(lightJump_Speed, lightJump_Weight)
+									Horizontal_Input(_delta, lightJump_Speed, lightJump_Weight)
 									ApplyGravity(_delta, lightJump_GravityScale)
 									move_and_slide()
 									if(Input.is_action_just_released(jump_Input)):
@@ -351,10 +379,13 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.y > 0.0):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
+								#-------------------------------------------------------------------------------
+							#-------------------------------------------------------------------------------
+						#-------------------------------------------------------------------------------
 						JUMP_STATE.HEAVY_JUMP:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(heavyJump_Speed, heavyJump_Weight)
+									Horizontal_Input(_delta, heavyJump_Speed, heavyJump_Weight)
 									ApplyGravity(_delta, heavyJump_GravityScale)
 									move_and_slide()
 									if(Input.is_action_just_pressed(jump_Input)):
@@ -366,8 +397,9 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.y > 0.0):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(heavyJump_Speed, heavyJump_Weight)
+									Horizontal_Input(_delta, heavyJump_Speed, heavyJump_Weight)
 									ApplyGravity(_delta, heavyJump_GravityScale)
 									move_and_slide()
 									if(Input.is_action_just_pressed(jump_Input)):
@@ -379,10 +411,11 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.y > 0.0):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
+								#-------------------------------------------------------------------------------
 						JUMP_STATE.FALL:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(fall_Speed, fall_Weight)
+									Horizontal_Input(_delta, fall_Speed, fall_Weight)
 									ApplyGravity(_delta, fall_GravityScale)
 									move_and_slide()
 									if(Input.is_action_just_pressed(jump_Input)):
@@ -398,8 +431,9 @@ func _physics_process(_delta:float) -> void:
 										velocity.y = terminalWallVelocity
 										myJUMP_STATE = JUMP_STATE.TERMINAL_VELOCITY
 										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(fall_Speed, fall_Weight)
+									Horizontal_Input(_delta, fall_Speed, fall_Weight)
 									ApplyGravity(_delta, fall_GravityScale)
 									move_and_slide()
 									if(Input.is_action_just_pressed(jump_Input)):
@@ -415,10 +449,13 @@ func _physics_process(_delta:float) -> void:
 										velocity.y = terminalWallVelocity
 										myJUMP_STATE = JUMP_STATE.TERMINAL_VELOCITY
 										return
+								#-------------------------------------------------------------------------------
+							#-------------------------------------------------------------------------------
+						#-------------------------------------------------------------------------------
 						JUMP_STATE.TERMINAL_VELOCITY:
 							match(myHORIZONTAL_STATE):
 								HORIZONTAL_STATE.LEFT:
-									Horizontal_Input(terminalVelocity_Speed, terminalVelocity_Weight)
+									Horizontal_Input(_delta, terminalVelocity_Speed, terminalVelocity_Weight)
 									move_and_slide()
 									if(Input.is_action_just_pressed(jump_Input)):
 										LeftWallJump()
@@ -432,8 +469,9 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.y < terminalWallVelocity):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
+								#-------------------------------------------------------------------------------
 								HORIZONTAL_STATE.RIGHT:
-									Horizontal_Input(terminalVelocity_Speed, terminalVelocity_Weight)
+									Horizontal_Input(_delta, terminalVelocity_Speed, terminalVelocity_Weight)
 									move_and_slide()
 									if(Input.is_action_just_pressed(jump_Input)):
 										RightWallJump()
@@ -447,6 +485,14 @@ func _physics_process(_delta:float) -> void:
 									if(velocity.y < terminalWallVelocity):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
+								#-------------------------------------------------------------------------------
+							#-------------------------------------------------------------------------------
+						#-------------------------------------------------------------------------------
+					#-------------------------------------------------------------------------------
+				#-------------------------------------------------------------------------------
+			#-------------------------------------------------------------------------------
+		#-------------------------------------------------------------------------------
+	#-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 #endregion
 #-------------------------------------------------------------------------------
@@ -454,11 +500,12 @@ func _physics_process(_delta:float) -> void:
 func ApplyGravity(_delta:float, _scale:float) -> void:
 	velocity.y += gravity * _scale * _delta
 #-------------------------------------------------------------------------------
-func Horizontal_Input(_speed:float, _wight:float) -> void:
+func Horizontal_Input(_delta:float, _speed:float, _wight:float) -> void:
+	var _f: float = _wight * framesInOneSecond * _delta
 	if(movementInput.x):
-		velocity.x = lerp(velocity.x, movementInput.x * _speed, _wight)
+		velocity.x = lerp(velocity.x, movementInput.x * _speed, _f)
 	else:
-		velocity.x = lerp(velocity.x, 0.0, _wight)
+		velocity.x = lerp(velocity.x, 0.0, _f)
 #-------------------------------------------------------------------------------
 func FlipSpriteLeft() -> void:
 	myHORIZONTAL_STATE = HORIZONTAL_STATE.LEFT
@@ -474,21 +521,21 @@ func RotateSprite_To_GroundNormal() -> void:
 #-------------------------------------------------------------------------------
 func GroundJump() -> void:
 	velocity.y = jumpPower
-	sprite_2d.rotation = 0.0
-	PlayAnimation(animName_Jump)
-	myCOLLISION_STATE = COLLISION_STATE.AIR
-	myJUMP_STATE = JUMP_STATE.LIGHT_JUMP
+	JumpCommon()
 #-------------------------------------------------------------------------------
 func LeftWallJump() -> void:
-	WallJump(-1.0, 1.0)
+	WallJump(-1.5, 1.0)
 	sprite_2d.scale.x = 1
 #-------------------------------------------------------------------------------
 func RightWallJump() -> void:
-	WallJump(1.0, 1.0)
+	WallJump(1.5, 1.0)
 	sprite_2d.scale.x = -1
 #-------------------------------------------------------------------------------
 func WallJump(_x : float, _y : float) -> void:
 	velocity = Vector2(_x, _y) * jumpPower
+	JumpCommon()
+#-------------------------------------------------------------------------------
+func JumpCommon():
 	sprite_2d.rotation = 0.0
 	PlayAnimation(animName_Jump)
 	myCOLLISION_STATE = COLLISION_STATE.AIR
@@ -524,14 +571,16 @@ func EnterWall() -> void:
 	PlayAnimation(animName_Wall)
 #-------------------------------------------------------------------------------
 func ExitLeftWall() -> void:
-	myHORIZONTAL_STATE = HORIZONTAL_STATE.RIGHT
 	ExitWall()
-	sprite_2d.scale.x = 1
+	if(velocity.x > 0):
+		myHORIZONTAL_STATE = HORIZONTAL_STATE.RIGHT
+		sprite_2d.scale.x = 1
 #-------------------------------------------------------------------------------
 func ExitRightWall() -> void:
-	myHORIZONTAL_STATE = HORIZONTAL_STATE.LEFT
 	ExitWall()
-	sprite_2d.scale.x = -1
+	if(velocity.x < 0):
+		myHORIZONTAL_STATE = HORIZONTAL_STATE.LEFT
+		sprite_2d.scale.x = -1
 #-------------------------------------------------------------------------------
 func ExitWall() -> void:
 	myCOLLISION_STATE = COLLISION_STATE.AIR
