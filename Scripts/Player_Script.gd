@@ -72,7 +72,7 @@ func _ready() -> void:
 	pass
 #-------------------------------------------------------------------------------
 func _physics_process(_delta:float) -> void:
-	movementInput = Vector2(Input.get_axis("ui_left", "ui_right"), Input.get_axis("ui_up", "ui_down"))
+	movementInput = Vector2(Input.get_axis("ui_left", "ui_right"), Input.get_axis("ui_up", "ui_down")).normalized()
 	var _f: float = 0.1 * framesInOneSecond * _delta
 	camera_2d.position = lerp(camera_2d.position, cameraMarker.global_position, _f)
 	leftWallCol = leftWall_Area2D.get_overlapping_bodies()

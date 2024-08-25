@@ -248,7 +248,7 @@ terrain_set_0/terrain_0/color = Color(0.693073, 8.18223e-07, 0.407953, 1)
 sources/0 = SubResource("TileSetAtlasSource_2jq6p")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pbhcd"]
-size = Vector2(6, 31)
+size = Vector2(6, 29)
 
 [sub_resource type="Animation" id="Animation_ufvnb"]
 resource_name = "Fall"
@@ -967,7 +967,7 @@ hframes = 10
 vframes = 9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World2D/Player"]
-position = Vector2(0, -15.5)
+position = Vector2(0, -14.5)
 shape = SubResource("RectangleShape2D_pbhcd")
 
 [node name="Marker2D" type="Marker2D" parent="World2D/Player"]
