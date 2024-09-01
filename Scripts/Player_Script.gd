@@ -26,7 +26,7 @@ var rightWallCol : Array[Node2D]
 @export var leftWall_Area2D: Area2D
 @export var rightWall_Area2D: Area2D
 const velocityLimitX_Wall : float = 0.1		#Evita reentrar a wall cuando se salto en paredes
-const framesInOneSecond: float = 60
+var deltaTimeScale: float = 1
 #-------------------------------------------------------------------------------
 # Inputs
 var movementInput : Vector2 = Vector2.ZERO
@@ -72,9 +72,9 @@ func _ready() -> void:
 	pass
 #-------------------------------------------------------------------------------
 func _physics_process(_delta:float) -> void:
+	deltaTimeScale = _delta * 60
 	movementInput = Vector2(Input.get_axis("ui_left", "ui_right"), Input.get_axis("ui_up", "ui_down")).normalized()
-	var _f: float = 0.1 * framesInOneSecond * _delta
-	camera_2d.position = lerp(camera_2d.position, cameraMarker.global_position, _f)
+	camera_2d.position = lerp(camera_2d.position, cameraMarker.global_position, 0.1 * deltaTimeScale)
 	leftWallCol = leftWall_Area2D.get_overlapping_bodies()
 	rightWallCol = rightWall_Area2D.get_overlapping_bodies()
 	#-------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ func _physics_process(_delta:float) -> void:
 									if(rightWallCol && velocity.x >= -velocityLimitX_Wall):
 										EnterRightWall()
 										return
-									if(velocity.y > 0.0):
+									if(velocity.y >= 0.0):
 										PlayAnimation(animName_Fall)
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
@@ -182,7 +182,7 @@ func _physics_process(_delta:float) -> void:
 									if(rightWallCol && velocity.x >= -velocityLimitX_Wall):
 										EnterRightWall()
 										return
-									if(velocity.y > 0.0):
+									if(velocity.y >= 0.0):
 										PlayAnimation(animName_Fall)
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
@@ -208,7 +208,7 @@ func _physics_process(_delta:float) -> void:
 									#if(Input.is_action_just_pressed(jump_Input)):
 										#GroundJump()
 										#return
-									if(velocity.y > 0.0):
+									if(velocity.y >= 0.0):
 										PlayAnimation(animName_Fall)
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
@@ -230,7 +230,7 @@ func _physics_process(_delta:float) -> void:
 									#if(Input.is_action_just_pressed(jump_Input)):
 										#GroundJump()
 										#return
-									if(velocity.y > 0.0):
+									if(velocity.y >= 0.0):
 										PlayAnimation(animName_Fall)
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
@@ -362,7 +362,7 @@ func _physics_process(_delta:float) -> void:
 									if(!leftWallCol):
 										ExitLeftWall()
 										return
-									if(velocity.y > 0.0):
+									if(velocity.y >= 0.0):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
 								#-------------------------------------------------------------------------------
@@ -376,7 +376,7 @@ func _physics_process(_delta:float) -> void:
 									if(!rightWallCol):
 										ExitRightWall()
 										return
-									if(velocity.y > 0.0):
+									if(velocity.y >= 0.0):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
 								#-------------------------------------------------------------------------------
@@ -394,7 +394,7 @@ func _physics_process(_delta:float) -> void:
 									if(!leftWallCol):
 										ExitLeftWall()
 										return
-									if(velocity.y > 0.0):
+									if(velocity.y >= 0.0):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
 								#-------------------------------------------------------------------------------
@@ -408,7 +408,7 @@ func _physics_process(_delta:float) -> void:
 									if(!rightWallCol):
 										ExitRightWall()
 										return
-									if(velocity.y > 0.0):
+									if(velocity.y >= 0.0):
 										myJUMP_STATE = JUMP_STATE.FALL
 										return
 								#-------------------------------------------------------------------------------
@@ -501,7 +501,7 @@ func ApplyGravity(_delta:float, _scale:float) -> void:
 	velocity.y += gravity * _scale * _delta
 #-------------------------------------------------------------------------------
 func Horizontal_Input(_delta:float, _speed:float, _wight:float) -> void:
-	var _f: float = _wight * framesInOneSecond * _delta
+	var _f: float = _wight * deltaTimeScale
 	if(movementInput.x):
 		velocity.x = lerp(velocity.x, movementInput.x * _speed, _f)
 	else:

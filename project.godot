@@ -58,6 +58,7 @@ Debug_SlowMotion={
 
 2d_physics/layer_1="Wall"
 2d_physics/layer_2="Player"
+2d_physics/layer_3="Ground"
 
 [rendering]
 
